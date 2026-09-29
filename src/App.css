@@ -398,33 +398,35 @@
   border-radius: 99px;
 }
 
-.selected-day-panel {
+.selected-readout {
   display: grid;
-  grid-template-columns: minmax(90px, 0.7fr) 1.3fr;
+  grid-template-columns: 42px minmax(0, 1fr);
   align-items: center;
-  gap: 12px;
-  padding: 12px 14px;
+  gap: 8px;
+  padding: 7px 4px;
+  border-block: 1px solid rgba(255, 255, 255, 0.09);
 }
 
 .selected-day-heading {
   display: grid;
-  gap: 4px;
+  gap: 2px;
 }
 
 .selected-day-heading span {
   color: var(--muted);
-  font-size: 9px;
+  font-size: 8px;
   font-weight: 800;
   text-transform: uppercase;
 }
 
 .selected-day-heading strong {
   color: var(--blue);
-  font-size: 20px;
+  font-size: 14px;
 }
 
 .selected-day-values {
   display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 5px;
 }
 
@@ -435,14 +437,18 @@
 }
 
 .selected-day-values > div {
-  justify-content: space-between;
-  gap: 8px;
+  min-width: 0;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
   color: #aeb9c1;
-  font-size: 9px;
+  font-size: 8px;
 }
 
 .selected-day-values span {
-  gap: 6px;
+  min-width: 0;
+  gap: 4px;
+  white-space: nowrap;
 }
 
 .selected-day-values i {
@@ -466,6 +472,7 @@
 
 .selected-day-values strong {
   color: #e2e8ed;
+  font-size: 11px;
   white-space: nowrap;
 }
 

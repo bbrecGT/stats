@@ -1,38 +1,38 @@
 import { useState } from 'react'
 import './App.css'
 
-const periods = ['Jour', 'Semaine', 'Mois', 'Annee']
+const periods = ['Day', 'Week', 'Month', 'Year']
 const installationSummary = {
-  gain: '2 847',
+  gain: '2,847',
   saved: '598',
-  co2: '1,1 tCO2 evitees',
-  water: '3 240 L',
-  cop: 'average cop: 3,7',
+  co2: '1.1 tCO2 avoided',
+  water: '3,240 L',
+  cop: 'Average COP: 3.7',
 }
 
 const dashboardData = {
-  Jour: {
+  Day: {
     gauge: 64,
     saving: 61,
     totalWater: '126 L',
-    waterAverage: 'moy. 126 L/jour',
+    waterAverage: 'avg. 126 L/day',
     electricity: [
-      { day: '06h', x: 35, y: 112 },
-      { day: '09h', x: 82, y: 101 },
-      { day: '12h', x: 129, y: 88 },
-      { day: '15h', x: 176, y: 83 },
-      { day: '18h', x: 223, y: 72 },
-      { day: '21h', x: 270, y: 91 },
-      { day: '00h', x: 306, y: 108 },
+      { day: '06:00', x: 35, y: 112 },
+      { day: '09:00', x: 82, y: 101 },
+      { day: '12:00', x: 129, y: 88 },
+      { day: '15:00', x: 176, y: 83 },
+      { day: '18:00', x: 223, y: 72 },
+      { day: '21:00', x: 270, y: 91 },
+      { day: '00:00', x: 306, y: 108 },
     ],
     equivalent: [
-      { day: '06h', x: 35, y: 85 },
-      { day: '09h', x: 82, y: 68 },
-      { day: '12h', x: 129, y: 51 },
-      { day: '15h', x: 176, y: 45 },
-      { day: '18h', x: 223, y: 38 },
-      { day: '21h', x: 270, y: 62 },
-      { day: '00h', x: 306, y: 82 },
+      { day: '06:00', x: 35, y: 85 },
+      { day: '09:00', x: 82, y: 68 },
+      { day: '12:00', x: 129, y: 51 },
+      { day: '15:00', x: 176, y: 45 },
+      { day: '18:00', x: 223, y: 38 },
+      { day: '21:00', x: 270, y: 62 },
+      { day: '00:00', x: 306, y: 82 },
     ],
     water: [
       { day: '06h', height: 28 },
@@ -44,112 +44,112 @@ const dashboardData = {
       { day: '00h', height: 20 },
     ],
   },
-  Semaine: {
+  Week: {
     gauge: 72,
     saving: 68,
     totalWater: '860 L',
-    waterAverage: 'moy. 123 L/jour',
+    waterAverage: 'avg. 123 L/day',
     electricity: [
-      { day: 'Lun', x: 35, y: 107 },
-      { day: 'Mar', x: 82, y: 96 },
-      { day: 'Mer', x: 129, y: 90 },
-      { day: 'Jeu', x: 176, y: 91 },
-      { day: 'Ven', x: 223, y: 97 },
-      { day: 'Sam', x: 270, y: 103 },
-      { day: 'Dim', x: 306, y: 110 },
+      { day: 'Mon', x: 35, y: 107 },
+      { day: 'Tue', x: 82, y: 96 },
+      { day: 'Wed', x: 129, y: 90 },
+      { day: 'Thu', x: 176, y: 91 },
+      { day: 'Fri', x: 223, y: 97 },
+      { day: 'Sat', x: 270, y: 103 },
+      { day: 'Sun', x: 306, y: 110 },
     ],
     equivalent: [
-      { day: 'Lun', x: 35, y: 72 },
-      { day: 'Mar', x: 82, y: 51 },
-      { day: 'Mer', x: 129, y: 35 },
-      { day: 'Jeu', x: 176, y: 42 },
-      { day: 'Ven', x: 223, y: 56 },
-      { day: 'Sam', x: 270, y: 67 },
-      { day: 'Dim', x: 306, y: 82 },
+      { day: 'Mon', x: 35, y: 72 },
+      { day: 'Tue', x: 82, y: 51 },
+      { day: 'Wed', x: 129, y: 35 },
+      { day: 'Thu', x: 176, y: 42 },
+      { day: 'Fri', x: 223, y: 56 },
+      { day: 'Sat', x: 270, y: 67 },
+      { day: 'Sun', x: 306, y: 82 },
     ],
     water: [
-      { day: 'Lun', height: 75 },
-      { day: 'Mar', height: 81 },
-      { day: 'Mer', height: 103 },
-      { day: 'Jeu', height: 88 },
-      { day: 'Ven', height: 99 },
-      { day: 'Sam', height: 70 },
-      { day: 'Dim', height: 60 },
+      { day: 'Mon', height: 75 },
+      { day: 'Tue', height: 81 },
+      { day: 'Wed', height: 103 },
+      { day: 'Thu', height: 88 },
+      { day: 'Fri', height: 99 },
+      { day: 'Sat', height: 70 },
+      { day: 'Sun', height: 60 },
     ],
   },
-  Mois: {
+  Month: {
     gauge: 74,
     saving: 71,
     totalWater: '3 240 L',
-    waterAverage: 'moy. 108 L/jour',
+    waterAverage: 'avg. 108 L/day',
     electricity: [
-      { day: 'S1', x: 35, y: 98 },
-      { day: 'S2', x: 82, y: 86 },
-      { day: 'S3', x: 129, y: 83 },
-      { day: 'S4', x: 176, y: 76 },
-      { day: 'S5', x: 223, y: 81 },
-      { day: 'S6', x: 270, y: 92 },
-      { day: 'S7', x: 306, y: 101 },
+      { day: 'W1', x: 35, y: 98 },
+      { day: 'W2', x: 82, y: 86 },
+      { day: 'W3', x: 129, y: 83 },
+      { day: 'W4', x: 176, y: 76 },
+      { day: 'W5', x: 223, y: 81 },
+      { day: 'W6', x: 270, y: 92 },
+      { day: 'W7', x: 306, y: 101 },
     ],
     equivalent: [
-      { day: 'S1', x: 35, y: 62 },
-      { day: 'S2', x: 82, y: 44 },
-      { day: 'S3', x: 129, y: 37 },
-      { day: 'S4', x: 176, y: 31 },
-      { day: 'S5', x: 223, y: 42 },
-      { day: 'S6', x: 270, y: 58 },
-      { day: 'S7', x: 306, y: 70 },
+      { day: 'W1', x: 35, y: 62 },
+      { day: 'W2', x: 82, y: 44 },
+      { day: 'W3', x: 129, y: 37 },
+      { day: 'W4', x: 176, y: 31 },
+      { day: 'W5', x: 223, y: 42 },
+      { day: 'W6', x: 270, y: 58 },
+      { day: 'W7', x: 306, y: 70 },
     ],
     water: [
-      { day: 'S1', height: 92 },
-      { day: 'S2', height: 84 },
-      { day: 'S3', height: 101 },
-      { day: 'S4', height: 76 },
-      { day: 'S5', height: 96 },
-      { day: 'S6', height: 68 },
-      { day: 'S7', height: 58 },
+      { day: 'W1', height: 92 },
+      { day: 'W2', height: 84 },
+      { day: 'W3', height: 101 },
+      { day: 'W4', height: 76 },
+      { day: 'W5', height: 96 },
+      { day: 'W6', height: 68 },
+      { day: 'W7', height: 58 },
     ],
   },
-  Annee: {
+  Year: {
     gauge: 76,
     saving: 73,
     totalWater: '38 900 L',
-    waterAverage: 'moy. 106 L/jour',
+    waterAverage: 'avg. 106 L/day',
     electricity: [
       { day: 'Jan', x: 35, y: 82 },
-      { day: 'Fev', x: 82, y: 70 },
+      { day: 'Feb', x: 82, y: 70 },
       { day: 'Mar', x: 129, y: 78 },
-      { day: 'Avr', x: 176, y: 88 },
-      { day: 'Mai', x: 223, y: 101 },
-      { day: 'Juin', x: 270, y: 97 },
-      { day: 'Juil', x: 306, y: 91 },
+      { day: 'Apr', x: 176, y: 88 },
+      { day: 'May', x: 223, y: 101 },
+      { day: 'Jun', x: 270, y: 97 },
+      { day: 'Jul', x: 306, y: 91 },
     ],
     equivalent: [
       { day: 'Jan', x: 35, y: 40 },
-      { day: 'Fev', x: 82, y: 33 },
+      { day: 'Feb', x: 82, y: 33 },
       { day: 'Mar', x: 129, y: 39 },
-      { day: 'Avr', x: 176, y: 52 },
-      { day: 'Mai', x: 223, y: 67 },
-      { day: 'Juin', x: 270, y: 61 },
-      { day: 'Juil', x: 306, y: 56 },
+      { day: 'Apr', x: 176, y: 52 },
+      { day: 'May', x: 223, y: 67 },
+      { day: 'Jun', x: 270, y: 61 },
+      { day: 'Jul', x: 306, y: 56 },
     ],
     water: [
       { day: 'Jan', height: 104 },
-      { day: 'Fev', height: 92 },
+      { day: 'Feb', height: 92 },
       { day: 'Mar', height: 98 },
-      { day: 'Avr', height: 82 },
-      { day: 'Mai', height: 75 },
-      { day: 'Juin', height: 88 },
-      { day: 'Juil', height: 96 },
+      { day: 'Apr', height: 82 },
+      { day: 'May', height: 75 },
+      { day: 'Jun', height: 88 },
+      { day: 'Jul', height: 96 },
     ],
   },
 }
 
 const navItems = [
-  { label: 'Accueil', icon: 'home' },
+  { label: 'Home', icon: 'home' },
   { label: 'Performance', icon: 'speed' },
-  { label: 'Mode absence', icon: 'away' },
-  { label: 'Planning', icon: 'calendar' },
+  { label: 'Away mode', icon: 'away' },
+  { label: 'Schedule', icon: 'calendar' },
 ]
 
 function pointsToPath(points) {
@@ -215,10 +215,10 @@ function ElectricityChart({ data, selectedIndex, onSelect }) {
   return (
     <section className="panel chart-panel electricity-chart-panel">
       <div className="panel-title-row">
-        <h2><MiniIcon type="bolt" /> Consommation electrique <span>(kWh)</span></h2>
+        <h2><MiniIcon type="bolt" /> Power consumption <span>(kWh)</span></h2>
       </div>
       <div className="chart-content">
-        <svg className="line-chart" viewBox="0 0 360 150" role="img" aria-label="Courbes de consommation electrique">
+        <svg className="line-chart" viewBox="0 0 360 150" role="img" aria-label="Power consumption curves">
           {[25, 50, 75, 100, 125].map((gridY) => (
             <line className="grid-line" key={gridY} x1="28" x2="318" y1={gridY} y2={gridY} />
           ))}
@@ -236,7 +236,7 @@ function ElectricityChart({ data, selectedIndex, onSelect }) {
               r="4"
               role="button"
               tabIndex="0"
-              aria-label={`Voir ${point.day}`}
+              aria-label={`Show ${point.day}`}
               onClick={() => onSelect(index)}
               onKeyDown={(event) => {
                 if (event.key === 'Enter' || event.key === ' ') {
@@ -254,7 +254,7 @@ function ElectricityChart({ data, selectedIndex, onSelect }) {
               r="4"
               role="button"
               tabIndex="0"
-              aria-label={`Voir ${point.day}`}
+              aria-label={`Show ${point.day}`}
               onClick={() => onSelect(index)}
               onKeyDown={(event) => {
                 if (event.key === 'Enter' || event.key === ' ') {
@@ -270,8 +270,8 @@ function ElectricityChart({ data, selectedIndex, onSelect }) {
         </svg>
       </div>
       <div className="legend">
-        <span><i className="legend-blue" /> Thermodynamique</span>
-        <span><i className="legend-orange" /> Electrique equivalent</span>
+        <span><i className="legend-blue" /> Heat pump</span>
+        <span><i className="legend-orange" /> Electric equivalent</span>
       </div>
     </section>
   )
@@ -281,10 +281,10 @@ function HotWaterChart({ data, selectedIndex, onSelect }) {
   return (
     <section className="panel chart-panel water-chart-panel">
       <div className="panel-title-row">
-        <h2><MiniIcon type="water" /> Consommation d'eau chaude <span>(L)</span></h2>
+        <h2><MiniIcon type="water" /> Hot water consumption <span>(L)</span></h2>
       </div>
       <div className="chart-content">
-        <div className="bar-chart" aria-label="Barres de consommation d'eau chaude">
+        <div className="bar-chart" aria-label="Hot water consumption bars">
           <div className="bar-grid" />
           {data.water.map((bar, index) => (
             <button className={`bar-column ${selectedIndex === index ? 'selected' : ''}`} type="button" key={bar.day} onClick={() => onSelect(index)}>
@@ -298,21 +298,21 @@ function HotWaterChart({ data, selectedIndex, onSelect }) {
   )
 }
 
-function SelectedDaySummary({ data, selectedIndex }) {
+function SelectedDayReadout({ data, selectedIndex }) {
   const electricity = data.electricity[selectedIndex]
   const equivalent = data.equivalent[selectedIndex]
   const water = data.water[selectedIndex]
 
   return (
-    <section className="panel selected-day-panel" aria-live="polite" aria-label={`Valeurs du ${electricity.day}`}>
+    <section className="selected-readout" aria-live="polite" aria-label={`Values for ${electricity.day}`}>
       <div className="selected-day-heading">
-        <span>Jour selectionne</span>
+        <span>Day</span>
         <strong>{electricity.day}</strong>
       </div>
       <div className="selected-day-values">
-        <div><span><i className="legend-blue" /> Thermodynamique</span><strong>{Math.max(1, Math.round((130 - electricity.y) / 8))} kWh</strong></div>
-        <div><span><i className="legend-orange" /> Electrique equivalent</span><strong>{Math.max(1, Math.round((130 - equivalent.y) / 6))} kWh</strong></div>
-        <div><span><i className="legend-water" /> Eau chaude</span><strong>{Math.round(water.height * 1.8)} L</strong></div>
+        <div><span><i className="legend-blue" /> Heat pump</span><strong>{Math.max(1, Math.round((130 - electricity.y) / 8))} kWh</strong></div>
+        <div><span><i className="legend-orange" /> Electric eq.</span><strong>{Math.max(1, Math.round((130 - equivalent.y) / 6))} kWh</strong></div>
+        <div><span><i className="legend-water" /> Hot water</span><strong>{Math.round(water.height * 1.8)} L</strong></div>
       </div>
     </section>
   )
@@ -338,9 +338,9 @@ function BottomNav({ activeNav, onChange }) {
 }
 
 function App() {
-  const [selectedPeriod, setSelectedPeriod] = useState('Semaine')
+  const [selectedPeriod, setSelectedPeriod] = useState('Week')
   const [selectedIndex, setSelectedIndex] = useState(6)
-  const [activeNav, setActiveNav] = useState('Accueil')
+  const [activeNav, setActiveNav] = useState('Home')
   const data = dashboardData[selectedPeriod]
 
   function changePeriod(period) {
@@ -351,19 +351,19 @@ function App() {
   return (
     <div className="app-shell">
       <header className="top-bar">
-        <button type="button" aria-label="Parametres" onClick={() => setActiveNav('Parametres')}>⚙</button>
-        <h1>{activeNav === 'Accueil' ? 'Economies' : activeNav}</h1>
-        <button type="button" aria-label="Alertes" onClick={() => setActiveNav('Alertes')}>▲</button>
+        <button type="button" aria-label="Settings" onClick={() => setActiveNav('Settings')}>⚙</button>
+        <h1>{activeNav === 'Home' ? 'Savings' : activeNav}</h1>
+        <button type="button" aria-label="Alerts" onClick={() => setActiveNav('Alerts')}>▲</button>
       </header>
 
       <main className="dashboard">
         <section className="panel overview-panel">
           <div className="hero-main">
             <div className="hero-metrics">
-              <span>Gain depuis l'installation</span>
+              <span>Gain since installation</span>
               <strong>{installationSummary.gain} <em>kWh</em></strong>
               <div className="hero-kpis">
-                <small>{installationSummary.saved} euros economises</small>
+                <small>€{installationSummary.saved} saved</small>
                 <small><MiniIcon type="leaf" /> {installationSummary.co2}</small>
                 <small><MiniIcon type="water" /> {installationSummary.water}</small>
                 <small><MiniIcon type="co2" /> {installationSummary.cop}</small>
@@ -372,7 +372,7 @@ function App() {
           </div>
         </section>
 
-        <div className="period-tabs" aria-label="Periode">
+        <div className="period-tabs" aria-label="Time period">
           {periods.map((period) => (
             <button
               className={selectedPeriod === period ? 'active' : ''}
@@ -386,9 +386,9 @@ function App() {
           ))}
         </div>
 
+        <SelectedDayReadout data={data} selectedIndex={selectedIndex} />
         <ElectricityChart data={data} selectedIndex={selectedIndex} onSelect={setSelectedIndex} />
         <HotWaterChart data={data} selectedIndex={selectedIndex} onSelect={setSelectedIndex} />
-        <SelectedDaySummary data={data} selectedIndex={selectedIndex} />
       </main>
 
       <BottomNav activeNav={activeNav} onChange={setActiveNav} />
