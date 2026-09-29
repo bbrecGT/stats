@@ -276,7 +276,7 @@
   gap: 6px;
   margin: 0;
   color: #cbd3da;
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 900;
   text-transform: uppercase;
   letter-spacing: 0.03em;
@@ -297,7 +297,7 @@
   display: block;
   width: 100%;
   height: auto;
-  aspect-ratio: 12 / 5;
+  aspect-ratio: 2 / 1;
   overflow: visible;
 }
 
@@ -309,13 +309,35 @@
 .axis-value,
 .day-label {
   fill: #8e969e;
-  font-size: 8px;
+  font-size: 9px;
   font-weight: 700;
+}
+
+.point-value {
+  font-size: 8px;
+  font-weight: 800;
+  paint-order: stroke;
+  stroke: #24262a;
+  stroke-width: 2px;
+  stroke-linejoin: round;
+  pointer-events: none;
+}
+
+.blue-value {
+  fill: var(--blue);
+}
+
+.orange-value {
+  fill: var(--orange);
+}
+
+.point-value.selected {
+  font-size: 9px;
 }
 
 .line {
   fill: none;
-  stroke-width: 3;
+  stroke-width: 3.5;
   stroke-linecap: round;
   stroke-linejoin: round;
 }
@@ -382,7 +404,7 @@
   gap: 10px;
   margin: 0;
   color: #aeb4ba;
-  font-size: 8px;
+  font-size: 9px;
   font-weight: 700;
 }
 
@@ -398,84 +420,6 @@
   border-radius: 99px;
 }
 
-.selected-readout {
-  display: grid;
-  grid-template-columns: 42px minmax(0, 1fr);
-  align-items: center;
-  gap: 8px;
-  padding: 7px 4px;
-  border-block: 1px solid rgba(255, 255, 255, 0.09);
-}
-
-.selected-day-heading {
-  display: grid;
-  gap: 2px;
-}
-
-.selected-day-heading span {
-  color: var(--muted);
-  font-size: 8px;
-  font-weight: 800;
-  text-transform: uppercase;
-}
-
-.selected-day-heading strong {
-  color: var(--blue);
-  font-size: 14px;
-}
-
-.selected-day-values {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 5px;
-}
-
-.selected-day-values > div,
-.selected-day-values span {
-  display: flex;
-  align-items: center;
-}
-
-.selected-day-values > div {
-  min-width: 0;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 3px;
-  color: #aeb9c1;
-  font-size: 8px;
-}
-
-.selected-day-values span {
-  min-width: 0;
-  gap: 4px;
-  white-space: nowrap;
-}
-
-.selected-day-values i {
-  display: inline-block;
-  flex: 0 0 auto;
-}
-
-.selected-day-values .legend-blue,
-.selected-day-values .legend-orange {
-  width: 12px;
-  height: 3px;
-  border-radius: 99px;
-}
-
-.selected-day-values .legend-water {
-  width: 8px;
-  height: 12px;
-  border-radius: 2px 2px 0 0;
-  background: var(--blue);
-}
-
-.selected-day-values strong {
-  color: #e2e8ed;
-  font-size: 11px;
-  white-space: nowrap;
-}
-
 .water-chart-panel {
   padding-bottom: 25px;
 }
@@ -485,13 +429,13 @@
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   align-items: stretch;
-  height: 112px;
+  height: 160px;
   padding: 8px 0 0 20px;
 }
 
 .bar-grid {
   position: absolute;
-  inset: 10px 0 21px 20px;
+  inset: 10px 0 14px 20px;
   background: repeating-linear-gradient(to top, rgba(255, 255, 255, 0.08) 0 1px, transparent 1px 24px);
 }
 
@@ -509,7 +453,7 @@
   color: #8e969e;
   background: transparent;
   border: 0;
-  font-size: 8px;
+  font-size: 9px;
   font-weight: 700;
 }
 
@@ -524,13 +468,28 @@
 }
 
 .bar {
-  width: 19px;
+  position: relative;
+  width: 22px;
   max-height: 104px;
   display: block;
   align-self: end;
   border-radius: 2px 2px 0 0;
   background: linear-gradient(180deg, #63d8ff, #4aa8d4);
   box-shadow: 0 0 10px rgba(82, 203, 246, 0.2);
+  overflow: visible;
+}
+
+.bar-value {
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 3px);
+  transform: translateX(-50%);
+  color: #aeeaff;
+  font-size: 9px;
+  font-weight: 800;
+  white-space: nowrap;
+  text-shadow: 0 1px 3px #17191d;
+  pointer-events: none;
 }
 
 .bar-column.selected .bar {

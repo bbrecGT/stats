@@ -218,7 +218,7 @@ function ElectricityChart({ data, selectedIndex, onSelect }) {
         <h2><MiniIcon type="bolt" /> Power consumption <span>(kWh)</span></h2>
       </div>
       <div className="chart-content">
-        <svg className="line-chart" viewBox="0 0 360 150" role="img" aria-label="Power consumption curves">
+        <svg className="line-chart" viewBox="0 0 360 150" preserveAspectRatio="none" role="img" aria-label="Power consumption curves in kilowatt-hours">
           {[25, 50, 75, 100, 125].map((gridY) => (
             <line className="grid-line" key={gridY} x1="28" x2="318" y1={gridY} y2={gridY} />
           ))}
@@ -233,7 +233,37 @@ function ElectricityChart({ data, selectedIndex, onSelect }) {
               key={`orange-${point.day}`}
               cx={chartX(point.x)}
               cy={point.y}
-              r="4"
+              r="5"
+              role="button"
+              tabIndex="0"
+              aria-label={`Show ${point.day}`}
+              onClick={() => onSelect(index)}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                  onSelect(index)
+                }
+              }}
+            />
+          ))}
+          {data.equivalent.map((point, index) => (
+            <text
+              className={`point-value orange-value ${selectedIndex === index ? 'selected' : ''}`}
+              key={`orange-value-${point.day}`}
+              x={chartX(point.x)}
+              y={point.y - 8}
+              textAnchor="middle"
+              aria-hidden="true"
+            >
+              {Math.max(1, Math.round((130 - point.y) / 6))} kWh
+            </text>
+          ))}
+          {data.electricity.map((point, index) => (
+            <circle
+              className={`dot blue-dot ${selectedIndex === index ? 'selected' : ''}`}
+              key={`blue-${point.day}`}
+              cx={chartX(point.x)}
+              cy={point.y}
+              r="5"
               role="button"
               tabIndex="0"
               aria-label={`Show ${point.day}`}
@@ -246,22 +276,16 @@ function ElectricityChart({ data, selectedIndex, onSelect }) {
             />
           ))}
           {data.electricity.map((point, index) => (
-            <circle
-              className={`dot blue-dot ${selectedIndex === index ? 'selected' : ''}`}
-              key={`blue-${point.day}`}
-              cx={chartX(point.x)}
-              cy={point.y}
-              r="4"
-              role="button"
-              tabIndex="0"
-              aria-label={`Show ${point.day}`}
-              onClick={() => onSelect(index)}
-              onKeyDown={(event) => {
-                if (event.key === 'Enter' || event.key === ' ') {
-                  onSelect(index)
-                }
-              }}
-            />
+            <text
+              className={`point-value blue-value ${selectedIndex === index ? 'selected' : ''}`}
+              key={`blue-value-${point.day}`}
+              x={chartX(point.x)}
+              y={point.y - 8}
+              textAnchor="middle"
+              aria-hidden="true"
+            >
+              {Math.max(1, Math.round((130 - point.y) / 8))} kWh
+            </text>
           ))}
           <line className="selected-line" x1={chartX(selected.x)} x2={chartX(selected.x)} y1="23" y2="126" />
           {data.electricity.map((point) => (
@@ -288,31 +312,13 @@ function HotWaterChart({ data, selectedIndex, onSelect }) {
           <div className="bar-grid" />
           {data.water.map((bar, index) => (
             <button className={`bar-column ${selectedIndex === index ? 'selected' : ''}`} type="button" key={bar.day} onClick={() => onSelect(index)}>
-              <span className="bar" style={{ height: `${bar.height}px` }} />
+              <span className="bar" style={{ height: `${bar.height}px` }}>
+                <span className="bar-value">{Math.round(bar.height * 1.8)} L</span>
+              </span>
               <span>{bar.day}</span>
             </button>
           ))}
         </div>
-      </div>
-    </section>
-  )
-}
-
-function SelectedDayReadout({ data, selectedIndex }) {
-  const electricity = data.electricity[selectedIndex]
-  const equivalent = data.equivalent[selectedIndex]
-  const water = data.water[selectedIndex]
-
-  return (
-    <section className="selected-readout" aria-live="polite" aria-label={`Values for ${electricity.day}`}>
-      <div className="selected-day-heading">
-        <span>Day</span>
-        <strong>{electricity.day}</strong>
-      </div>
-      <div className="selected-day-values">
-        <div><span><i className="legend-blue" /> Heat pump</span><strong>{Math.max(1, Math.round((130 - electricity.y) / 8))} kWh</strong></div>
-        <div><span><i className="legend-orange" /> Electric eq.</span><strong>{Math.max(1, Math.round((130 - equivalent.y) / 6))} kWh</strong></div>
-        <div><span><i className="legend-water" /> Hot water</span><strong>{Math.round(water.height * 1.8)} L</strong></div>
       </div>
     </section>
   )
@@ -386,7 +392,6 @@ function App() {
           ))}
         </div>
 
-        <SelectedDayReadout data={data} selectedIndex={selectedIndex} />
         <ElectricityChart data={data} selectedIndex={selectedIndex} onSelect={setSelectedIndex} />
         <HotWaterChart data={data} selectedIndex={selectedIndex} onSelect={setSelectedIndex} />
       </main>
