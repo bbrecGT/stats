@@ -1,11 +1,11 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import './App.css'
 
 const periods = ['Day', 'Week', 'Month', 'Year']
 const installationSummary = {
   gain: '2,847',
   saved: '598',
-  co2: '1.1 tCO2 avoided',
+  co2: '1.1 tCO2e avoided',
   water: '3,240 L',
   cop: 'Average COP: 3.7',
 }
@@ -209,6 +209,26 @@ function NavIcon({ type }) {
   )
 }
 
+function HeroKpi({ id, tooltip, openKpi, onToggle, children }) {
+  const isOpen = openKpi === id
+
+  return (
+    <small className={isOpen ? 'is-open' : ''} data-tooltip={tooltip}>
+      {children}
+      <button
+        className="hero-kpi-info"
+        type="button"
+        aria-label={tooltip}
+        aria-expanded={isOpen}
+        title={tooltip}
+        onClick={() => onToggle(isOpen ? null : id)}
+      >
+        <span aria-hidden="true">i</span>
+      </button>
+    </small>
+  )
+}
+
 function ElectricityChart({ data, selectedIndex, onSelect }) {
   const selected = data.electricity[selectedIndex]
   const equivalent = data.equivalent[selectedIndex]
@@ -333,7 +353,22 @@ function App() {
   const [selectedPeriod, setSelectedPeriod] = useState('Week')
   const [selectedIndex, setSelectedIndex] = useState(6)
   const [activeNav, setActiveNav] = useState('Home')
+  const [openKpi, setOpenKpi] = useState(null)
+  const heroKpisRef = useRef(null)
   const data = dashboardData[selectedPeriod]
+
+  useEffect(() => {
+    if (openKpi === null) return undefined
+
+    function closeOnOutsidePointer(event) {
+      if (!heroKpisRef.current?.contains(event.target)) {
+        setOpenKpi(null)
+      }
+    }
+
+    document.addEventListener('pointerdown', closeOnOutsidePointer)
+    return () => document.removeEventListener('pointerdown', closeOnOutsidePointer)
+  }, [openKpi])
 
   function changePeriod(period) {
     setSelectedPeriod(period)
@@ -354,11 +389,19 @@ function App() {
             <div className="hero-metrics">
               <span>Gain since installation</span>
               <strong>{installationSummary.gain} <em>kWh</em></strong>
-              <div className="hero-kpis">
-                <small>€{installationSummary.saved} saved</small>
-                <small><MiniIcon type="leaf" /> {installationSummary.co2}</small>
-                <small><MiniIcon type="water" /> {installationSummary.water}</small>
-                <small><MiniIcon type="co2" /> {installationSummary.cop}</small>
+              <div className="hero-kpis" ref={heroKpisRef}>
+                <HeroKpi id="saved" tooltip="Estimated electricity cost saved since installation." openKpi={openKpi} onToggle={setOpenKpi}>
+                  $ {installationSummary.saved} saved
+                </HeroKpi>
+                <HeroKpi id="co2" tooltip="Estimated greenhouse gas emissions avoided, expressed as carbon dioxide equivalent (CO2e), compared with an electric heating system." openKpi={openKpi} onToggle={setOpenKpi}>
+                  <MiniIcon type="leaf" /> {installationSummary.co2}
+                </HeroKpi>
+                <HeroKpi id="water" tooltip="Total hot water consumed since installation." openKpi={openKpi} onToggle={setOpenKpi}>
+                  <MiniIcon type="water" /> {installationSummary.water}
+                </HeroKpi>
+                <HeroKpi id="cop" tooltip="Heat delivered per unit of electricity; a higher COP means greater efficiency." openKpi={openKpi} onToggle={setOpenKpi}>
+                  <MiniIcon type="co2" /> {installationSummary.cop}
+                </HeroKpi>
               </div>
             </div>
           </div>
