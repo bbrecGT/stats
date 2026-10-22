@@ -10,9 +10,7 @@ const installationSummary = {
 }
 const energySettingsStorageKey = 'stats-energy-settings'
 const defaultEnergySettings = {
-  location: '',
-  provider: '',
-  contractTerms: '',
+  pricePerKwh: '',
 }
 
 function loadEnergySettings() {
@@ -22,9 +20,7 @@ function loadEnergySettings() {
 
     const parsedSettings = JSON.parse(savedSettings)
     return {
-      location: typeof parsedSettings.location === 'string' ? parsedSettings.location : '',
-      provider: typeof parsedSettings.provider === 'string' ? parsedSettings.provider : '',
-      contractTerms: typeof parsedSettings.contractTerms === 'string' ? parsedSettings.contractTerms : '',
+      pricePerKwh: typeof parsedSettings.pricePerKwh === 'string' ? parsedSettings.pricePerKwh : '',
     }
   } catch {
     return { ...defaultEnergySettings }
@@ -408,9 +404,8 @@ function App() {
   const [energySettingsDraft, setEnergySettingsDraft] = useState(energySettings)
   const [savedAmount, setSavedAmount] = useState(loadSavedAmount)
   const heroKpisRef = useRef(null)
-  const energySettingsContainerRef = useRef(null)
   const energySettingsButtonRef = useRef(null)
-  const energySettingsPopoverRef = useRef(null)
+  const energySettingsDialogRef = useRef(null)
   const data = dashboardData[selectedPeriod]
 
   useEffect(() => {
@@ -420,15 +415,13 @@ function App() {
       if (!heroKpisRef.current?.contains(event.target)) {
         setOpenKpi(null)
       }
-      if (energySettingsOpen && !energySettingsContainerRef.current?.contains(event.target)) {
-        closeEnergySettings()
-      }
     }
 
     function closeOnEscape(event) {
       if (event.key === 'Escape') {
         setOpenKpi(null)
         if (energySettingsOpen) {
+          event.preventDefault()
           closeEnergySettings(true)
         }
       }
@@ -444,7 +437,10 @@ function App() {
 
   useEffect(() => {
     if (energySettingsOpen) {
-      energySettingsPopoverRef.current?.querySelector('input')?.focus()
+      energySettingsDialogRef.current?.showModal()
+      energySettingsDialogRef.current?.querySelector('input')?.focus()
+    } else if (energySettingsDialogRef.current?.open) {
+      energySettingsDialogRef.current.close()
     }
   }, [energySettingsOpen])
 
@@ -502,7 +498,7 @@ function App() {
               <span>Gain since installation</span>
               <strong>{installationSummary.gain} <em>kWh</em></strong>
               <div className="hero-kpis" ref={heroKpisRef}>
-                <div className="hero-kpi" ref={energySettingsContainerRef}>
+                <div className="hero-kpi">
                   $ {savedAmount} saved
                   <button
                     className="hero-kpi-info"
@@ -517,76 +513,6 @@ function App() {
                   >
                     <MiniIcon type="wrench" />
                   </button>
-                  {energySettingsOpen && (
-                    <div
-                      className="energy-settings-popover"
-                      id="energy-settings-dialog"
-                      ref={energySettingsPopoverRef}
-                      role="dialog"
-                      aria-labelledby="energy-settings-title"
-                    >
-                      <form className="energy-settings-form" onSubmit={saveEnergySettings}>
-                        <header className="energy-settings-header">
-                          <div>
-                            <span className="energy-settings-eyebrow">SAVINGS PROFILE</span>
-                            <h2 id="energy-settings-title">Energy settings</h2>
-                          </div>
-                          <button
-                            className="energy-settings-close"
-                            type="button"
-                            aria-label="Close energy settings"
-                            onClick={() => closeEnergySettings(true)}
-                          >
-                            ×
-                          </button>
-                        </header>
-                        <label className="energy-settings-field">
-                          Location
-                          <input
-                            name="location"
-                            type="text"
-                            autoComplete="address-level2"
-                            placeholder="City or postal code"
-                            value={energySettingsDraft.location}
-                            onChange={updateEnergySetting}
-                            required
-                          />
-                        </label>
-                        <label className="energy-settings-field">
-                          Energy provider
-                          <input
-                            name="provider"
-                            type="text"
-                            autoComplete="organization"
-                            placeholder="Provider name"
-                            value={energySettingsDraft.provider}
-                            onChange={updateEnergySetting}
-                            required
-                          />
-                        </label>
-                        <label className="energy-settings-field">
-                          <span className="energy-settings-label">
-                            Contract terms <span className="energy-settings-optional">Optional</span>
-                          </span>
-                          <input
-                            name="contractTerms"
-                            type="text"
-                            placeholder="e.g. fixed rate through 2027"
-                            value={energySettingsDraft.contractTerms}
-                            onChange={updateEnergySetting}
-                          />
-                        </label>
-                        <footer className="energy-settings-actions">
-                          <button type="button" className="energy-settings-cancel" onClick={() => closeEnergySettings(true)}>
-                            Cancel
-                          </button>
-                          <button type="submit" className="energy-settings-save">
-                            Save settings
-                          </button>
-                        </footer>
-                      </form>
-                    </div>
-                  )}
                 </div>
                 <HeroKpi id="co2" label="emissions" tooltip="Estimated greenhouse gas emissions avoided, expressed as carbon dioxide equivalent (CO2e), compared with an electric heating system." openKpi={openKpi} onToggle={setOpenKpi}>
                   <MiniIcon type="leaf" /> {installationSummary.co2}
@@ -616,6 +542,62 @@ function App() {
         <ElectricityChart data={data} selectedIndex={selectedElectricityIndex} onSelect={setSelectedElectricityIndex} />
         <HotWaterChart data={data} selectedIndex={selectedWaterIndex} onSelect={setSelectedWaterIndex} />
       </main>
+
+      <dialog
+        className="energy-settings-dialog"
+        id="energy-settings-dialog"
+        ref={energySettingsDialogRef}
+        aria-labelledby="energy-settings-title"
+        onCancel={(event) => {
+          event.preventDefault()
+          closeEnergySettings(true)
+        }}
+        onClick={(event) => {
+          if (event.target === event.currentTarget) {
+            closeEnergySettings(true)
+          }
+        }}
+      >
+        <div className="energy-settings-handle" aria-hidden="true" />
+        <form className="energy-settings-form" onSubmit={saveEnergySettings}>
+          <header className="energy-settings-header">
+            <div>
+              <span className="energy-settings-eyebrow">SAVINGS PROFILE</span>
+              <h2 id="energy-settings-title">Energy settings</h2>
+            </div>
+            <button
+              className="energy-settings-close"
+              type="button"
+              aria-label="Close energy settings"
+              onClick={() => closeEnergySettings(true)}
+            >
+              ×
+            </button>
+          </header>
+          <label className="energy-settings-field">
+            Electricity price per kWh ($)
+            <input
+              name="pricePerKwh"
+              type="number"
+              min="0"
+              step="0.001"
+              inputMode="decimal"
+              placeholder="0.250"
+              value={energySettingsDraft.pricePerKwh}
+              onChange={updateEnergySetting}
+              required
+            />
+          </label>
+          <footer className="energy-settings-actions">
+            <button type="button" className="energy-settings-cancel" onClick={() => closeEnergySettings(true)}>
+              Cancel
+            </button>
+            <button type="submit" className="energy-settings-save">
+              Save settings
+            </button>
+          </footer>
+        </form>
+      </dialog>
 
       <BottomNav activeNav={activeNav} onChange={setActiveNav} />
     </div>
