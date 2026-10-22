@@ -7,7 +7,50 @@ const installationSummary = {
   saved: '598',
   co2: '1.1 tCO2e avoided',
   water: '3,240 L',
-  cop: 'Average COP: 3.7',
+}
+const energySettingsStorageKey = 'stats-energy-settings'
+const defaultEnergySettings = {
+  location: '',
+  provider: '',
+  contractTerms: '',
+}
+
+function loadEnergySettings() {
+  try {
+    const savedSettings = localStorage.getItem(energySettingsStorageKey)
+    if (!savedSettings) return { ...defaultEnergySettings }
+
+    const parsedSettings = JSON.parse(savedSettings)
+    return {
+      location: typeof parsedSettings.location === 'string' ? parsedSettings.location : '',
+      provider: typeof parsedSettings.provider === 'string' ? parsedSettings.provider : '',
+      contractTerms: typeof parsedSettings.contractTerms === 'string' ? parsedSettings.contractTerms : '',
+    }
+  } catch {
+    return { ...defaultEnergySettings }
+  }
+}
+
+function loadSavedAmount() {
+  try {
+    const savedSettings = localStorage.getItem(energySettingsStorageKey)
+    if (!savedSettings) return Number(installationSummary.saved)
+
+    const parsedSettings = JSON.parse(savedSettings)
+    return Number.isInteger(parsedSettings.savedAmount)
+      ? parsedSettings.savedAmount
+      : Number(installationSummary.saved)
+  } catch {
+    return Number(installationSummary.saved)
+  }
+}
+
+function getRandomSavedAmount(currentAmount) {
+  let amount = currentAmount
+  while (amount === currentAmount) {
+    amount = Math.floor(Math.random() * 700) + 300
+  }
+  return amount
 }
 
 const dashboardData = {
@@ -17,31 +60,56 @@ const dashboardData = {
     totalWater: '126 L',
     waterAverage: 'avg. 126 L/day',
     electricity: [
-      { day: '06:00', x: 35, y: 112 },
-      { day: '09:00', x: 82, y: 101 },
-      { day: '12:00', x: 129, y: 88 },
-      { day: '15:00', x: 176, y: 83 },
-      { day: '18:00', x: 223, y: 72 },
-      { day: '21:00', x: 270, y: 91 },
-      { day: '00:00', x: 306, y: 108 },
-    ],
-    equivalent: [
-      { day: '06:00', x: 35, y: 85 },
-      { day: '09:00', x: 82, y: 68 },
-      { day: '12:00', x: 129, y: 51 },
-      { day: '15:00', x: 176, y: 45 },
-      { day: '18:00', x: 223, y: 38 },
-      { day: '21:00', x: 270, y: 62 },
-      { day: '00:00', x: 306, y: 82 },
+      { day: '00:00', value: 2, category: 'both' },
+      { day: '01:00', value: 1, category: 'electricity' },
+      { day: '02:00', value: 1, category: 'electricity' },
+      { day: '03:00', value: 1, category: 'electricity' },
+      { day: '04:00', value: 2, category: 'heat-pump' },
+      { day: '05:00', value: 3, category: 'both' },
+      { day: '06:00', value: 4, category: 'heat-pump' },
+      { day: '07:00', value: 5, category: 'heat-pump' },
+      { day: '08:00', value: 6, category: 'both' },
+      { day: '09:00', value: 7, category: 'both' },
+      { day: '10:00', value: 6, category: 'electricity' },
+      { day: '11:00', value: 5, category: 'electricity' },
+      { day: '12:00', value: 6, category: 'heat-pump' },
+      { day: '13:00', value: 6, category: 'both' },
+      { day: '14:00', value: 5, category: 'electricity' },
+      { day: '15:00', value: 6, category: 'both' },
+      { day: '16:00', value: 7, category: 'heat-pump' },
+      { day: '17:00', value: 8, category: 'both' },
+      { day: '18:00', value: 9, category: 'both' },
+      { day: '19:00', value: 8, category: 'heat-pump' },
+      { day: '20:00', value: 6, category: 'electricity' },
+      { day: '21:00', value: 5, category: 'electricity' },
+      { day: '22:00', value: 4, category: 'heat-pump' },
+      { day: '23:00', value: 3, category: 'electricity' },
     ],
     water: [
-      { day: '06h', height: 28 },
-      { day: '09h', height: 54 },
-      { day: '12h', height: 72 },
-      { day: '15h', height: 48 },
-      { day: '18h', height: 92 },
-      { day: '21h', height: 64 },
       { day: '00h', height: 20 },
+      { day: '01h', height: 18 },
+      { day: '02h', height: 16 },
+      { day: '03h', height: 15 },
+      { day: '04h', height: 16 },
+      { day: '05h', height: 22 },
+      { day: '06h', height: 34 },
+      { day: '07h', height: 48 },
+      { day: '08h', height: 58 },
+      { day: '09h', height: 70 },
+      { day: '10h', height: 54 },
+      { day: '11h', height: 42 },
+      { day: '12h', height: 72 },
+      { day: '13h', height: 64 },
+      { day: '14h', height: 50 },
+      { day: '15h', height: 48 },
+      { day: '16h', height: 58 },
+      { day: '17h', height: 76 },
+      { day: '18h', height: 92 },
+      { day: '19h', height: 82 },
+      { day: '20h', height: 64 },
+      { day: '21h', height: 52 },
+      { day: '22h', height: 36 },
+      { day: '23h', height: 26 },
     ],
   },
   Week: {
@@ -57,15 +125,6 @@ const dashboardData = {
       { day: 'Fri', x: 223, y: 97 },
       { day: 'Sat', x: 270, y: 103 },
       { day: 'Sun', x: 306, y: 110 },
-    ],
-    equivalent: [
-      { day: 'Mon', x: 35, y: 72 },
-      { day: 'Tue', x: 82, y: 51 },
-      { day: 'Wed', x: 129, y: 35 },
-      { day: 'Thu', x: 176, y: 42 },
-      { day: 'Fri', x: 223, y: 56 },
-      { day: 'Sat', x: 270, y: 67 },
-      { day: 'Sun', x: 306, y: 82 },
     ],
     water: [
       { day: 'Mon', height: 75 },
@@ -91,15 +150,6 @@ const dashboardData = {
       { day: 'W6', x: 270, y: 92 },
       { day: 'W7', x: 306, y: 101 },
     ],
-    equivalent: [
-      { day: 'W1', x: 35, y: 62 },
-      { day: 'W2', x: 82, y: 44 },
-      { day: 'W3', x: 129, y: 37 },
-      { day: 'W4', x: 176, y: 31 },
-      { day: 'W5', x: 223, y: 42 },
-      { day: 'W6', x: 270, y: 58 },
-      { day: 'W7', x: 306, y: 70 },
-    ],
     water: [
       { day: 'W1', height: 92 },
       { day: 'W2', height: 84 },
@@ -124,15 +174,6 @@ const dashboardData = {
       { day: 'Jun', x: 270, y: 97 },
       { day: 'Jul', x: 306, y: 91 },
     ],
-    equivalent: [
-      { day: 'Jan', x: 35, y: 40 },
-      { day: 'Feb', x: 82, y: 33 },
-      { day: 'Mar', x: 129, y: 39 },
-      { day: 'Apr', x: 176, y: 52 },
-      { day: 'May', x: 223, y: 67 },
-      { day: 'Jun', x: 270, y: 61 },
-      { day: 'Jul', x: 306, y: 56 },
-    ],
     water: [
       { day: 'Jan', height: 104 },
       { day: 'Feb', height: 92 },
@@ -152,14 +193,10 @@ const navItems = [
   { label: 'Schedule', icon: 'calendar' },
 ]
 
-function pointsToPath(points) {
-  return points
-    .map((point, pointIndex) => `${pointIndex === 0 ? 'M' : 'L'} ${chartX(point.x)} ${point.y}`)
-    .join(' ')
-}
-
-function chartX(value) {
-  return 28 + ((value - 35) / (306 - 35)) * (350 - 28)
+const powerCategoryLabels = {
+  electricity: 'Electricity only',
+  'heat-pump': 'Heat pump only',
+  both: 'Both',
 }
 
 function MiniIcon({ type }) {
@@ -175,6 +212,14 @@ function MiniIcon({ type }) {
     return (
       <svg viewBox="0 0 24 24" aria-hidden="true">
         <path d="M19.7 4.3C12.2 4.5 6.6 7.4 5 12.5c-1 3.1.2 5.5 2.2 6.7 3.7-6.8 7.7-9.7 10.8-11.1-2.7 2.1-5.4 5.1-7.8 11.7 5.2.2 9.7-4.2 9.5-15.5Z" />
+      </svg>
+    )
+  }
+
+  if (type === 'wrench') {
+    return (
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M21.7 6.3a6.4 6.4 0 0 1-8.1 7.7l-7.1 7.1a2.1 2.1 0 0 1-3-3l7.1-7.1a6.4 6.4 0 0 1 7.7-8.1l-4.1 4.1 2.8 2.8 4.7-3.5Z" />
       </svg>
     )
   }
@@ -209,29 +254,43 @@ function NavIcon({ type }) {
   )
 }
 
-function HeroKpi({ id, tooltip, openKpi, onToggle, children }) {
+function HeroKpi({ id, label, tooltip, openKpi, onToggle, children }) {
   const isOpen = openKpi === id
+  const popoverId = `hero-kpi-${id}-popover`
 
   return (
-    <small className={isOpen ? 'is-open' : ''} data-tooltip={tooltip}>
+    <div className="hero-kpi">
       {children}
       <button
         className="hero-kpi-info"
         type="button"
-        aria-label={tooltip}
+        aria-label={`More information about ${label}`}
         aria-expanded={isOpen}
-        title={tooltip}
+        aria-controls={popoverId}
         onClick={() => onToggle(isOpen ? null : id)}
       >
         <span aria-hidden="true">i</span>
       </button>
-    </small>
+      <div
+        className="hero-kpi-popover"
+        id={popoverId}
+        role="region"
+        aria-label={`${label} information`}
+        hidden={!isOpen}
+      >
+        {tooltip}
+      </div>
+    </div>
   )
 }
 
 function ElectricityChart({ data, selectedIndex, onSelect }) {
   const selected = data.electricity[selectedIndex]
-  const equivalent = data.equivalent[selectedIndex]
+  const barCount = data.electricity.length
+  const selectedValue = selected.value ?? Math.max(1, Math.round((130 - selected.y) / 8))
+  const selectedCategory = selected.category ?? 'heat-pump'
+  const selectedCategoryLabel = powerCategoryLabels[selectedCategory]
+  const hasCategoryBreakdown = data.electricity.some((point) => point.category)
 
   return (
     <section className="panel chart-panel electricity-chart-panel">
@@ -240,64 +299,42 @@ function ElectricityChart({ data, selectedIndex, onSelect }) {
       </div>
       <div className="selected-values" aria-live="polite">
         <span>{selected.day}</span>
-        <strong className="blue-value">Heat pump: {Math.max(1, Math.round((130 - selected.y) / 8))} kWh</strong>
-        <strong className="orange-value">Electric equivalent: {Math.max(1, Math.round((130 - equivalent.y) / 6))} kWh</strong>
+        <strong className={`power-value power-${selectedCategory}`}>{selectedCategoryLabel}: {selectedValue} kWh</strong>
       </div>
       <div className="chart-content">
-        <svg className="line-chart" viewBox="0 0 360 150" preserveAspectRatio="none" role="img" aria-label="Power consumption curves in kilowatt-hours">
-          {[25, 50, 75, 100, 125].map((gridY) => (
-            <line className="grid-line" key={gridY} x1="28" x2="318" y1={gridY} y2={gridY} />
-          ))}
-          {[2, 6, 10, 14, 18].map((value, valueIndex) => (
-            <text className="axis-value" key={value} x="4" y={128 - valueIndex * 25}>{value}</text>
-          ))}
-          <path className="line orange-line" d={pointsToPath(data.equivalent)} />
-          <path className="line blue-line" d={pointsToPath(data.electricity)} />
-          {data.equivalent.map((point, index) => (
-            <circle
-              className={`dot orange-dot ${selectedIndex === index ? 'selected' : ''}`}
-              key={`orange-${point.day}`}
-              cx={chartX(point.x)}
-              cy={point.y}
-              r="5"
-              role="button"
-              tabIndex="0"
-              aria-label={`Show ${point.day}`}
-              onClick={() => onSelect(index)}
-              onKeyDown={(event) => {
-                if (event.key === 'Enter' || event.key === ' ') {
-                  onSelect(index)
-                }
-              }}
-            />
-          ))}
-          {data.electricity.map((point, index) => (
-            <circle
-              className={`dot blue-dot ${selectedIndex === index ? 'selected' : ''}`}
-              key={`blue-${point.day}`}
-              cx={chartX(point.x)}
-              cy={point.y}
-              r="5"
-              role="button"
-              tabIndex="0"
-              aria-label={`Show ${point.day}`}
-              onClick={() => onSelect(index)}
-              onKeyDown={(event) => {
-                if (event.key === 'Enter' || event.key === ' ') {
-                  onSelect(index)
-                }
-              }}
-            />
-          ))}
-          <line className="selected-line" x1={chartX(selected.x)} x2={chartX(selected.x)} y1="23" y2="126" />
-          {data.electricity.map((point) => (
-            <text className="day-label" key={point.day} x={chartX(point.x) - 10} y="141">{point.day}</text>
-          ))}
-        </svg>
+        <div className="bar-chart hourly-bars" style={{ '--bar-count': barCount }} role="group" aria-label="Power consumption by hour">
+          <div className="bar-grid" />
+          {data.electricity.map((point, index) => {
+            const value = point.value ?? Math.max(1, Math.round((130 - point.y) / 8))
+            const category = point.category ?? 'heat-pump'
+            const showLabel = barCount <= 7 || index % 3 === 0
+
+            return (
+              <button
+                className={`bar-column power-${category} ${selectedIndex === index ? 'selected' : ''}`}
+                type="button"
+                key={point.day}
+                aria-label={`${point.day}: ${powerCategoryLabels[category]}, ${value} kWh`}
+                aria-pressed={selectedIndex === index}
+                onClick={() => onSelect(index)}
+              >
+                <span className="bar" style={{ height: `${value * 10}px` }} />
+                <span>{showLabel ? point.day : ''}</span>
+              </button>
+            )
+          })}
+        </div>
       </div>
       <div className="legend">
-        <span><i className="legend-blue" /> Heat pump</span>
-        <span><i className="legend-orange" /> Electric equivalent</span>
+        {hasCategoryBreakdown ? (
+          <>
+            <span><i className="legend-electricity" /> Electricity only</span>
+            <span><i className="legend-heat-pump" /> Heat pump only</span>
+            <span><i className="legend-both" /> Both</span>
+          </>
+        ) : (
+          <span><i className="legend-heat-pump" /> Heat pump only</span>
+        )}
       </div>
     </section>
   )
@@ -316,12 +353,23 @@ function HotWaterChart({ data, selectedIndex, onSelect }) {
         <strong className="blue-value">{Math.round(selected.height * 1.8)} L</strong>
       </div>
       <div className="chart-content">
-        <div className="bar-chart" aria-label="Hot water consumption bars">
+        <div
+          className={`bar-chart ${data.water.length === 24 ? 'hourly-bars' : ''}`}
+          role="group"
+          aria-label={data.water.length === 24 ? 'Hot water consumption by hour' : 'Hot water consumption bars'}
+        >
           <div className="bar-grid" />
           {data.water.map((bar, index) => (
-            <button className={`bar-column ${selectedIndex === index ? 'selected' : ''}`} type="button" key={bar.day} onClick={() => onSelect(index)}>
+            <button
+              className={`bar-column ${selectedIndex === index ? 'selected' : ''}`}
+              type="button"
+              key={bar.day}
+              aria-label={`${bar.day}: ${Math.round(bar.height * 1.8)} L`}
+              aria-pressed={selectedIndex === index}
+              onClick={() => onSelect(index)}
+            >
               <span className="bar" style={{ height: `${bar.height}px` }} />
-              <span>{bar.day}</span>
+              <span>{data.water.length === 24 && index % 3 !== 0 ? '' : bar.day}</span>
             </button>
           ))}
         </div>
@@ -351,28 +399,92 @@ function BottomNav({ activeNav, onChange }) {
 
 function App() {
   const [selectedPeriod, setSelectedPeriod] = useState('Week')
-  const [selectedIndex, setSelectedIndex] = useState(6)
+  const [selectedElectricityIndex, setSelectedElectricityIndex] = useState(6)
+  const [selectedWaterIndex, setSelectedWaterIndex] = useState(6)
   const [activeNav, setActiveNav] = useState('Home')
   const [openKpi, setOpenKpi] = useState(null)
+  const [energySettingsOpen, setEnergySettingsOpen] = useState(false)
+  const [energySettings, setEnergySettings] = useState(loadEnergySettings)
+  const [energySettingsDraft, setEnergySettingsDraft] = useState(energySettings)
+  const [savedAmount, setSavedAmount] = useState(loadSavedAmount)
   const heroKpisRef = useRef(null)
+  const energySettingsContainerRef = useRef(null)
+  const energySettingsButtonRef = useRef(null)
+  const energySettingsPopoverRef = useRef(null)
   const data = dashboardData[selectedPeriod]
 
   useEffect(() => {
-    if (openKpi === null) return undefined
+    if (openKpi === null && !energySettingsOpen) return undefined
 
     function closeOnOutsidePointer(event) {
       if (!heroKpisRef.current?.contains(event.target)) {
         setOpenKpi(null)
       }
+      if (energySettingsOpen && !energySettingsContainerRef.current?.contains(event.target)) {
+        closeEnergySettings()
+      }
+    }
+
+    function closeOnEscape(event) {
+      if (event.key === 'Escape') {
+        setOpenKpi(null)
+        if (energySettingsOpen) {
+          closeEnergySettings(true)
+        }
+      }
     }
 
     document.addEventListener('pointerdown', closeOnOutsidePointer)
-    return () => document.removeEventListener('pointerdown', closeOnOutsidePointer)
-  }, [openKpi])
+    document.addEventListener('keydown', closeOnEscape)
+    return () => {
+      document.removeEventListener('pointerdown', closeOnOutsidePointer)
+      document.removeEventListener('keydown', closeOnEscape)
+    }
+  }, [openKpi, energySettingsOpen])
+
+  useEffect(() => {
+    if (energySettingsOpen) {
+      energySettingsPopoverRef.current?.querySelector('input')?.focus()
+    }
+  }, [energySettingsOpen])
+
+  function openEnergySettings() {
+    setOpenKpi(null)
+    setEnergySettingsDraft({ ...energySettings })
+    setEnergySettingsOpen(true)
+  }
+
+  function closeEnergySettings(restoreFocus = false) {
+    setEnergySettingsOpen(false)
+    if (restoreFocus) energySettingsButtonRef.current?.focus()
+  }
+
+  function updateEnergySetting(event) {
+    const { name, value } = event.currentTarget
+    setEnergySettingsDraft((currentSettings) => ({ ...currentSettings, [name]: value }))
+  }
+
+  function saveEnergySettings(event) {
+    event.preventDefault()
+    const settingsChanged = Object.keys(defaultEnergySettings).some(
+      (key) => energySettingsDraft[key] !== energySettings[key],
+    )
+    const nextSavedAmount = settingsChanged ? getRandomSavedAmount(savedAmount) : savedAmount
+
+    try {
+      localStorage.setItem(energySettingsStorageKey, JSON.stringify({ ...energySettingsDraft, savedAmount: nextSavedAmount }))
+    } catch {
+      // Keep the settings available for this session if storage is unavailable.
+    }
+    setEnergySettings(energySettingsDraft)
+    setSavedAmount(nextSavedAmount)
+    closeEnergySettings(true)
+  }
 
   function changePeriod(period) {
     setSelectedPeriod(period)
-    setSelectedIndex(dashboardData[period].electricity.length - 1)
+    setSelectedElectricityIndex(dashboardData[period].electricity.length - 1)
+    setSelectedWaterIndex(dashboardData[period].water.length - 1)
   }
 
   return (
@@ -390,17 +502,97 @@ function App() {
               <span>Gain since installation</span>
               <strong>{installationSummary.gain} <em>kWh</em></strong>
               <div className="hero-kpis" ref={heroKpisRef}>
-                <HeroKpi id="saved" tooltip="Estimated electricity cost saved since installation." openKpi={openKpi} onToggle={setOpenKpi}>
-                  $ {installationSummary.saved} saved
-                </HeroKpi>
-                <HeroKpi id="co2" tooltip="Estimated greenhouse gas emissions avoided, expressed as carbon dioxide equivalent (CO2e), compared with an electric heating system." openKpi={openKpi} onToggle={setOpenKpi}>
+                <div className="hero-kpi" ref={energySettingsContainerRef}>
+                  $ {savedAmount} saved
+                  <button
+                    className="hero-kpi-info"
+                    type="button"
+                    aria-label="Energy settings"
+                    aria-haspopup="dialog"
+                    aria-expanded={energySettingsOpen}
+                    aria-controls="energy-settings-dialog"
+                    title="Energy settings"
+                    ref={energySettingsButtonRef}
+                    onClick={openEnergySettings}
+                  >
+                    <MiniIcon type="wrench" />
+                  </button>
+                  {energySettingsOpen && (
+                    <div
+                      className="energy-settings-popover"
+                      id="energy-settings-dialog"
+                      ref={energySettingsPopoverRef}
+                      role="dialog"
+                      aria-labelledby="energy-settings-title"
+                    >
+                      <form className="energy-settings-form" onSubmit={saveEnergySettings}>
+                        <header className="energy-settings-header">
+                          <div>
+                            <span className="energy-settings-eyebrow">SAVINGS PROFILE</span>
+                            <h2 id="energy-settings-title">Energy settings</h2>
+                          </div>
+                          <button
+                            className="energy-settings-close"
+                            type="button"
+                            aria-label="Close energy settings"
+                            onClick={() => closeEnergySettings(true)}
+                          >
+                            ×
+                          </button>
+                        </header>
+                        <label className="energy-settings-field">
+                          Location
+                          <input
+                            name="location"
+                            type="text"
+                            autoComplete="address-level2"
+                            placeholder="City or postal code"
+                            value={energySettingsDraft.location}
+                            onChange={updateEnergySetting}
+                            required
+                          />
+                        </label>
+                        <label className="energy-settings-field">
+                          Energy provider
+                          <input
+                            name="provider"
+                            type="text"
+                            autoComplete="organization"
+                            placeholder="Provider name"
+                            value={energySettingsDraft.provider}
+                            onChange={updateEnergySetting}
+                            required
+                          />
+                        </label>
+                        <label className="energy-settings-field">
+                          <span className="energy-settings-label">
+                            Contract terms <span className="energy-settings-optional">Optional</span>
+                          </span>
+                          <input
+                            name="contractTerms"
+                            type="text"
+                            placeholder="e.g. fixed rate through 2027"
+                            value={energySettingsDraft.contractTerms}
+                            onChange={updateEnergySetting}
+                          />
+                        </label>
+                        <footer className="energy-settings-actions">
+                          <button type="button" className="energy-settings-cancel" onClick={() => closeEnergySettings(true)}>
+                            Cancel
+                          </button>
+                          <button type="submit" className="energy-settings-save">
+                            Save settings
+                          </button>
+                        </footer>
+                      </form>
+                    </div>
+                  )}
+                </div>
+                <HeroKpi id="co2" label="emissions" tooltip="Estimated greenhouse gas emissions avoided, expressed as carbon dioxide equivalent (CO2e), compared with an electric heating system." openKpi={openKpi} onToggle={setOpenKpi}>
                   <MiniIcon type="leaf" /> {installationSummary.co2}
                 </HeroKpi>
-                <HeroKpi id="water" tooltip="Total hot water consumed since installation." openKpi={openKpi} onToggle={setOpenKpi}>
+                <HeroKpi id="water" label="water usage" tooltip="Total hot water consumed since installation." openKpi={openKpi} onToggle={setOpenKpi}>
                   <MiniIcon type="water" /> {installationSummary.water}
-                </HeroKpi>
-                <HeroKpi id="cop" tooltip="Heat delivered per unit of electricity; a higher COP means greater efficiency." openKpi={openKpi} onToggle={setOpenKpi}>
-                  <MiniIcon type="co2" /> {installationSummary.cop}
                 </HeroKpi>
               </div>
             </div>
@@ -421,8 +613,8 @@ function App() {
           ))}
         </div>
 
-        <ElectricityChart data={data} selectedIndex={selectedIndex} onSelect={setSelectedIndex} />
-        <HotWaterChart data={data} selectedIndex={selectedIndex} onSelect={setSelectedIndex} />
+        <ElectricityChart data={data} selectedIndex={selectedElectricityIndex} onSelect={setSelectedElectricityIndex} />
+        <HotWaterChart data={data} selectedIndex={selectedWaterIndex} onSelect={setSelectedWaterIndex} />
       </main>
 
       <BottomNav activeNav={activeNav} onChange={setActiveNav} />
