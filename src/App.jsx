@@ -114,13 +114,13 @@ const dashboardData = {
     totalWater: '860 L',
     waterAverage: 'avg. 123 L/day',
     electricity: [
-      { day: 'Mon', x: 35, y: 107 },
-      { day: 'Tue', x: 82, y: 96 },
-      { day: 'Wed', x: 129, y: 90 },
-      { day: 'Thu', x: 176, y: 91 },
-      { day: 'Fri', x: 223, y: 97 },
-      { day: 'Sat', x: 270, y: 103 },
-      { day: 'Sun', x: 306, y: 110 },
+      { day: 'Mon', electricity: 1, heatPump: 2 },
+      { day: 'Tue', electricity: 1.5, heatPump: 2.5 },
+      { day: 'Wed', electricity: 2, heatPump: 3 },
+      { day: 'Thu', electricity: 1.5, heatPump: 3.5 },
+      { day: 'Fri', electricity: 1, heatPump: 3 },
+      { day: 'Sat', electricity: 1.5, heatPump: 1.5 },
+      { day: 'Sun', electricity: 1, heatPump: 2 },
     ],
     water: [
       { day: 'Mon', height: 75 },
@@ -138,13 +138,13 @@ const dashboardData = {
     totalWater: '3 240 L',
     waterAverage: 'avg. 108 L/day',
     electricity: [
-      { day: 'W1', x: 35, y: 98 },
-      { day: 'W2', x: 82, y: 86 },
-      { day: 'W3', x: 129, y: 83 },
-      { day: 'W4', x: 176, y: 76 },
-      { day: 'W5', x: 223, y: 81 },
-      { day: 'W6', x: 270, y: 92 },
-      { day: 'W7', x: 306, y: 101 },
+      { day: 'W1', electricity: 1, heatPump: 3 },
+      { day: 'W2', electricity: 2, heatPump: 4 },
+      { day: 'W3', electricity: 2.5, heatPump: 3.5 },
+      { day: 'W4', electricity: 2, heatPump: 5 },
+      { day: 'W5', electricity: 1.5, heatPump: 4.5 },
+      { day: 'W6', electricity: 2, heatPump: 3 },
+      { day: 'W7', electricity: 1.5, heatPump: 2.5 },
     ],
     water: [
       { day: 'W1', height: 92 },
@@ -162,13 +162,13 @@ const dashboardData = {
     totalWater: '38 900 L',
     waterAverage: 'avg. 106 L/day',
     electricity: [
-      { day: 'Jan', x: 35, y: 82 },
-      { day: 'Feb', x: 82, y: 70 },
-      { day: 'Mar', x: 129, y: 78 },
-      { day: 'Apr', x: 176, y: 88 },
-      { day: 'May', x: 223, y: 101 },
-      { day: 'Jun', x: 270, y: 97 },
-      { day: 'Jul', x: 306, y: 91 },
+      { day: 'Jan', electricity: 2, heatPump: 4 },
+      { day: 'Feb', electricity: 2.5, heatPump: 5.5 },
+      { day: 'Mar', electricity: 2, heatPump: 5 },
+      { day: 'Apr', electricity: 1.5, heatPump: 3.5 },
+      { day: 'May', electricity: 1, heatPump: 3 },
+      { day: 'Jun', electricity: 1.5, heatPump: 2.5 },
+      { day: 'Jul', electricity: 2, heatPump: 3 },
     ],
     water: [
       { day: 'Jan', height: 104 },
@@ -283,7 +283,7 @@ function HeroKpi({ id, label, tooltip, openKpi, onToggle, children }) {
 function ElectricityChart({ data, selectedIndex, onSelect }) {
   const selected = data.electricity[selectedIndex]
   const barCount = data.electricity.length
-  const selectedValue = selected.value ?? Math.max(1, Math.round((130 - selected.y) / 8))
+  const selectedValue = selected.value ?? selected.electricity + selected.heatPump
   const selectedCategory = selected.category ?? 'heat-pump'
   const selectedCategoryLabel = powerCategoryLabels[selectedCategory]
   const hasCategoryBreakdown = data.electricity.some((point) => point.category)
@@ -295,26 +295,42 @@ function ElectricityChart({ data, selectedIndex, onSelect }) {
       </div>
       <div className="selected-values" aria-live="polite">
         <span>{selected.day}</span>
-        <strong className={`power-value power-${selectedCategory}`}>{selectedCategoryLabel}: {selectedValue} kWh</strong>
+        {hasCategoryBreakdown ? (
+          <strong className={`power-value power-${selectedCategory}`}>{selectedCategoryLabel}: {selectedValue} kWh</strong>
+        ) : (
+          <>
+            <strong className="power-value power-electricity">Electricity: {selected.electricity} kWh</strong>
+            <strong className="power-value power-heat-pump">Heat pump: {selected.heatPump} kWh</strong>
+          </>
+        )}
       </div>
       <div className="chart-content">
-        <div className="bar-chart hourly-bars" style={{ '--bar-count': barCount }} role="group" aria-label="Power consumption by hour">
+        <div className="bar-chart hourly-bars" style={{ '--bar-count': barCount }} role="group" aria-label={hasCategoryBreakdown ? 'Power consumption by hour' : 'Power consumption by source'}>
           <div className="bar-grid" />
           {data.electricity.map((point, index) => {
-            const value = point.value ?? Math.max(1, Math.round((130 - point.y) / 8))
+            const value = point.value ?? point.electricity + point.heatPump
             const category = point.category ?? 'heat-pump'
             const showLabel = barCount <= 7 || index % 3 === 0
 
             return (
               <button
-                className={`bar-column power-${category} ${selectedIndex === index ? 'selected' : ''}`}
+                className={`bar-column ${hasCategoryBreakdown ? `power-${category}` : 'power-stacked'} ${selectedIndex === index ? 'selected' : ''}`}
                 type="button"
                 key={point.day}
-                aria-label={`${point.day}: ${powerCategoryLabels[category]}, ${value} kWh`}
+                aria-label={hasCategoryBreakdown
+                  ? `${point.day}: ${powerCategoryLabels[category]}, ${value} kWh`
+                  : `${point.day}: Electricity ${point.electricity} kWh, Heat pump ${point.heatPump} kWh, Total ${value} kWh`}
                 aria-pressed={selectedIndex === index}
                 onClick={() => onSelect(index)}
               >
-                <span className="bar" style={{ height: `${value * 10}px` }} />
+                <span className="bar" style={{ height: `${value * 10}px` }}>
+                  {!hasCategoryBreakdown && (
+                    <>
+                      <span className="power-segment electricity-segment" style={{ height: `${point.electricity / value * 100}%` }} />
+                      <span className="power-segment heat-pump-segment" style={{ height: `${point.heatPump / value * 100}%` }} />
+                    </>
+                  )}
+                </span>
                 <span>{showLabel ? point.day : ''}</span>
               </button>
             )
@@ -329,7 +345,10 @@ function ElectricityChart({ data, selectedIndex, onSelect }) {
             <span><i className="legend-both" /> Both</span>
           </>
         ) : (
-          <span><i className="legend-heat-pump" /> Heat pump only</span>
+          <>
+            <span><i className="legend-electricity" /> Electricity</span>
+            <span><i className="legend-heat-pump" /> Heat pump</span>
+          </>
         )}
       </div>
     </section>

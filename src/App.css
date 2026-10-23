@@ -733,6 +733,27 @@
   box-shadow: 0 0 10px rgba(255, 118, 39, 0.2);
 }
 
+.power-stacked .bar {
+  overflow: hidden;
+}
+
+.power-segment {
+  display: block;
+  width: 100%;
+}
+
+.electricity-segment {
+  background: var(--yellow);
+}
+
+.heat-pump-segment {
+  background: var(--blue);
+}
+
+.power-stacked.selected {
+  color: var(--blue);
+}
+
 .bar-column.selected .bar {
   filter: brightness(1.12);
   box-shadow: 0 0 14px currentColor;
